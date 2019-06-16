@@ -23,12 +23,16 @@ class Chart extends Component {
       .domain([Math.min(tempExtent[0], 0), tempExtent[1]])
       .range([height,0])
 
+    let colorScale = d3.scaleSequential()
+      .domain(d3.extent(data, d => d.avg).reverse())
+      .interpolator(d3.interpolateRdYlBu)
+
     let bars = data.map(el =>{
       return{
         x: xScale(el.date),
         y: yScale(el.high),
         height: yScale(el.low)-yScale(el.high),
-        fill: 'black'
+        fill: colorScale(el.avg)
       }
     })
     return {bars}
@@ -39,7 +43,7 @@ class Chart extends Component {
     return (
       <svg width={width} height={height}>
         {this.state.bars.map(bar=>{
-          return <rect x={bar.x} y={bar.y} width={2} height={bar.height}/>
+          return <rect x={bar.x} y={bar.y} width={2} height={bar.height} fill={bar.fill}/>
         })}
       </svg>
       );
