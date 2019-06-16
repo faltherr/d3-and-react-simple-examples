@@ -13,7 +13,8 @@ class BarChart extends Component {
   yAxis = d3.axisLeft().tickFormat(d => `${d}℉`);
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const { data } = nextProps;
+    const { data, range } = nextProps;
+    console.log('range in bar chart', range)
     if (!data) return {};
     // 1. map date to x-position
     // get min and max of date
@@ -41,15 +42,38 @@ class BarChart extends Component {
 
     // array of objects: x, y, height
     const bars = data.map(d => {
+      const isColored =
+      !range.length || (range[0] <= d.date && d.date <= range[1]);
+      console.log('isColored', isColored)
       return {
         x: xScale(d.date),
         y: yScale(d.high),
         height: yScale(d.low) - yScale(d.high),
-        fill: colorScale(d.avg)
+        fill: isColored ? colorScale(d.avg) : "#ccc"
       };
     });
 
     return { bars, xScale, yScale };
+
+  }
+
+  componentDidMount(){
+    this.brush = d3.brushX()
+      .extent([        
+        [margin.left, margin.top],
+        [width - margin.right, height - margin.bottom]
+      ]).on('end', this.brushEnd)
+      d3.select(this.refs.brush).call(this.brush)
+  }
+
+  brushEnd = () => {
+    if(!d3.event.selection){
+      this.props.updateRange([])
+      return
+    }
+    let [x1,x2] = d3.event.selection;
+    let range = [this.state.xScale.invert(x1), this.state.xScale.invert(x2)];
+    this.props.updateRange(range)
   }
 
   componentDidUpdate() {
@@ -67,6 +91,7 @@ class BarChart extends Component {
         ))}
         <g ref="xAxis" transform={`translate(0, ${height - margin.bottom})`} />
         <g ref="yAxis" transform={`translate(${margin.left}, 0)`} />
+        <g ref="brush"/>
       </svg>
     );
   }

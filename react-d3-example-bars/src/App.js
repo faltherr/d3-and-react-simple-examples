@@ -6,7 +6,8 @@ import Chart from "./visualizations/Chart";
 class App extends Component {
   state = {
     temps: {},
-    city: "sf" // city whose temperatures to show
+    city: "sf", // city whose temperatures to show
+    range: []
   };
 
   componentDidMount() {
@@ -27,7 +28,12 @@ class App extends Component {
     this.setState({ city: e.target.value });
   };
 
+  updateRange = range => {
+    this.setState({range})
+  }
+
   render() {
+    console.log('range in app', this.state.range)
     const data = this.state.temps[this.state.city];
 
     return (
@@ -53,8 +59,8 @@ class App extends Component {
           visualizations,<br />
           but just to show the possibility of using D3 and React*
         </p>
-        <BarChart data={data} />
-        <Chart data={data} />
+        <BarChart data={data} range={this.state.range} updateRange={this.updateRange}/>
+        <Chart data={data} range={this.state.range} updateRange={this.updateRange}/>
 
         <p>
           (Weather data from{" "}

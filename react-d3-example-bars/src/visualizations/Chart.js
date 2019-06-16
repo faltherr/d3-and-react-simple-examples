@@ -17,7 +17,6 @@ class Chart extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const { data } = nextProps;
-    console.log(data)
     if (!data) return {};
     let tempExtent = d3.extent(data, d=>d.high)
     let xScale = d3.scaleTime()
@@ -43,6 +42,29 @@ class Chart extends Component {
     return {bars, xScale, yScale}
   }
 
+  componentDidMount(){
+    // Here we use d3 to render a brush
+    this.brush = d3.brushX()
+      .extent([[margin.left,margin.top], [width-margin.right, height-margin.top]])
+      .on('end', () => {
+        if(!d3.event.selection){
+          this.props.updateRange([])
+          return
+        }
+        let [ minX,maxX ] = d3.event.selection
+        // We use .invert() with a d3 scale because we can give the dom a range and it will return a domain
+        let range = [
+          this.state.xScale.invert(minX),
+          this.state.xScale.invert(maxX)
+        ]
+        this.props.updateRange(range)
+      })
+
+
+    d3.select(this.refs.brush)
+      .call(this.brush)
+  }
+
   componentDidUpdate(){
     // D3 draws our axis
     this.xAxis.scale(this.state.xScale)
@@ -58,10 +80,10 @@ class Chart extends Component {
       .attr('y', d=> d.y)
       .attr('height', d=> d.height)
       .attr('fill', d=> d.fill)
+
   }
 
   render() {
-    console.log(this.state.bars)
     return (
       <svg width={width} height={height}>
         <g ref="bars">
@@ -72,8 +94,12 @@ class Chart extends Component {
             return <rect key={i} x={bar.x} width={2}/>
           })}
         </g>
+
         <g ref='xAxis' transform={`translate(0,${height-margin.bottom})`}/>
         <g ref='yAxis' transform={`translate(${margin.left})`}/>
+
+        {/* Render brush */}
+        <g ref='brush'/>
 
       </svg>
       );
