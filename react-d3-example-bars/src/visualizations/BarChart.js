@@ -14,7 +14,6 @@ class BarChart extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const { data, range } = nextProps;
-    console.log('range in bar chart', range)
     if (!data) return {};
     // 1. map date to x-position
     // get min and max of date
@@ -44,7 +43,6 @@ class BarChart extends Component {
     const bars = data.map(d => {
       const isColored =
       !range.length || (range[0] <= d.date && d.date <= range[1]);
-      console.log('isColored', isColored)
       return {
         x: xScale(d.date),
         y: yScale(d.high),

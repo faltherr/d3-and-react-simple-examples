@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import BarChart from "./visualizations/BarChart";
 import Chart from "./visualizations/Chart";
+import RadialChart from "./visualizations/RadialChart"
 
 class App extends Component {
   state = {
@@ -33,7 +34,6 @@ class App extends Component {
   }
 
   render() {
-    console.log('range in app', this.state.range)
     const data = this.state.temps[this.state.city];
 
     return (
@@ -61,6 +61,7 @@ class App extends Component {
         </p>
         <BarChart data={data} range={this.state.range} updateRange={this.updateRange}/>
         <Chart data={data} range={this.state.range} updateRange={this.updateRange}/>
+        <RadialChart data={data} />
 
         <p>
           (Weather data from{" "}
